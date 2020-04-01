@@ -1,6 +1,9 @@
 package model;
 
 import exception.MobileBankException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,14 +13,15 @@ import java.util.UUID;
 import static exception.MobileBankErrorCode.INVALID_CURRENCY;
 import static java.util.UUID.randomUUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class Account implements Serializable {
 
     private UUID id;
     private long clientId;
     private BigDecimal amount;
     private AccCode accCode;
-
-    public Account() {}
 
     public Account(AccCode accCode) throws MobileBankException {
         this(BigDecimal.valueOf(0), accCode);
@@ -43,10 +47,6 @@ public class Account implements Serializable {
         setAccCode(accCode);
     }
 
-    public UUID getId() {
-        return id;
-    }
-
     public void setId(UUID id) throws MobileBankException {
         if (null == id || id.toString().trim().isEmpty()) {
             throw new MobileBankException("Id is invalid!");
@@ -54,16 +54,8 @@ public class Account implements Serializable {
         this.id = id;
     }
 
-    public long getClientId() {
-        return clientId;
-    }
-
     public void setClientId(long clientId) {
         this.clientId = clientId;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
     }
 
     public void setAmount(BigDecimal amount) throws MobileBankException {
@@ -71,10 +63,6 @@ public class Account implements Serializable {
             throw new MobileBankException("Amount is invalid!");
         }
         this.amount = amount;
-    }
-
-    public AccCode getAccCode() {
-        return accCode;
     }
 
     public void setAccCode(AccCode accCode) {

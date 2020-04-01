@@ -1,12 +1,16 @@
 package model;
 
 import exception.MobileBankException;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@NoArgsConstructor
+@Getter
 public class User implements Serializable {
 
     private long id;
@@ -14,8 +18,6 @@ public class User implements Serializable {
     private String password;
     private String address;
     private String phone;
-
-    public User() {}
 
     public User(long id, String login, String password, String address, String phone)
             throws MobileBankException {
@@ -34,16 +36,8 @@ public class User implements Serializable {
         setPhone(phone);
     }
 
-    public long getId() {
-        return id;
-    }
-
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
     }
 
     public void setLogin(String login) throws MobileBankException {
@@ -53,10 +47,6 @@ public class User implements Serializable {
         this.login = login;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) throws MobileBankException {
         if (null == password || password.trim().isEmpty()) {
             throw new MobileBankException("Password is invalid");
@@ -64,19 +54,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
     public void setAddress(String address) throws MobileBankException {
         if (null == address || address.trim().isEmpty()) {
             throw new MobileBankException("Address is invalid!");
         }
         this.address = address;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public void setPhone(String phone) throws MobileBankException {
