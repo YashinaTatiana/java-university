@@ -19,10 +19,4 @@ public class Constants {
     public static final String AMOUNT_AFTER = "amount_after";
     public static final String CLIENT_ID = "client_id";
     public static final String USER_ID = "user_id";
-
-    // Currency
-    public static final double USD2RUB = 67;
-    public static final double EUR2RUB = 73;
-    public static final double USD2EUR = 0.89;
-
 }

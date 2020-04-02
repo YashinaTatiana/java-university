@@ -1,9 +1,11 @@
 package dao;
 
-import db.JdbcService;
+import db.AccountRepository;
+import db.UserRepository;
 import exception.MobileBankException;
 import model.Account;
 import model.User;
+import service.UserService;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -17,21 +19,21 @@ public class AccountDao {
 
     public void createAccount(String token, Account account)
             throws SQLException, MobileBankException {
-        Long clientId = JdbcService.getUserIdByToken(token);
+        Long clientId = UserRepository.getUserIdByToken(token);
         if (clientId == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
         account.setClientId(clientId);
-        JdbcService.insertAccount(account);
+        AccountRepository.insertAccount(account);
     }
 
     public List<String> getUserAccountIds(String token)
             throws MobileBankException, SQLException {
-        long userId = JdbcService.getUserIdByToken(token);
+        Long userId = UserRepository.getUserIdByToken(token);
         if (token == null || token.trim().isEmpty() || (Long)userId == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
-        return JdbcService.getAccountsByUserId(userId)
+        return AccountRepository.getAccountsByUserId(userId)
                 .stream().map(account -> account.getId().toString())
                 .collect(Collectors.toList());
     }
@@ -41,12 +43,12 @@ public class AccountDao {
         if (phone == null || phone.trim().isEmpty()) {
             throw new MobileBankException(PHONE_IS_REQUIRED);
         }
-        User user = JdbcService.getUserByPhone(phone);
+        User user = UserRepository.getUserByPhone(phone);
         if (null == user) {
             throw new MobileBankException(USER_NOT_FOUND);
         }
         long userId = user.getId();
-        return JdbcService.getAccountsByUserId(userId)
+        return AccountRepository.getAccountsByUserId(userId)
                 .stream().map(account -> account.getId().toString())
                 .collect(Collectors.toList());
     }

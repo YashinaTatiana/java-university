@@ -2,10 +2,12 @@ package service;
 
 import dao.OperationsDao;
 import dto.AccountOperationsDto;
-import dto.OperationsResponseDto;
+import dto.Response;
 import exception.MobileBankException;
+import model.Operation;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class OperationService {
 
@@ -15,36 +17,30 @@ public class OperationService {
         this.operationsDao = operationsDao;
     }
 
-    public OperationsResponseDto refillAccount(AccountOperationsDto accountDto) {
-        OperationsResponseDto operationsResponseDto = new OperationsResponseDto();
+    public Response<String> refillAccount(AccountOperationsDto accountDto) {
         try {
             operationsDao.refillAccount(accountDto);
-            return operationsResponseDto;
+            return new Response<>("Account refilled successfully", "");
         } catch (MobileBankException | SQLException ex) {
-            operationsResponseDto.setError(ex.getMessage());
-            return operationsResponseDto;
+            return new Response<>(null, ex.getMessage());
+
         }
     }
 
-    public OperationsResponseDto moneyTransferByPhone(AccountOperationsDto accountDto) {
-        OperationsResponseDto dto = new OperationsResponseDto();
+    public Response<String> moneyTransferByPhone(AccountOperationsDto accountDto) {
         try {
             operationsDao.transaction(accountDto);
-            return dto;
+            return new Response<>("Operation completed successfully", "");
         } catch (MobileBankException | SQLException ex) {
-            dto.setError(ex.getMessage());
-            return dto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public OperationsResponseDto getOperationsInfo(String token) {
-        OperationsResponseDto dto = new OperationsResponseDto();
+    public Response<List<Operation>> getOperationsInfo(String token) {
         try {
-            dto.setOperations(operationsDao.getOperations(token));
-            return dto;
+            return new Response<>(operationsDao.getOperations(token), "");
         } catch (MobileBankException | SQLException ex) {
-            dto.setError(ex.getMessage());
-            return dto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 }

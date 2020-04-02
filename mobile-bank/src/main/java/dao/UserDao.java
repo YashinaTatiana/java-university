@@ -1,6 +1,6 @@
 package dao;
 
-import db.JdbcService;
+import db.UserRepository;
 import exception.MobileBankException;
 import model.Credentials;
 import model.User;
@@ -8,7 +8,7 @@ import model.User;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import static db.JdbcService.*;
+import static db.UserRepository.*;
 import static exception.DbErrorCode.*;
 
 public class UserDao {
@@ -27,10 +27,9 @@ public class UserDao {
     }
 
     public String loginUserByPhone(Credentials credentials) throws MobileBankException, SQLException {
-        User user = JdbcService.getUserByLogin(credentials.getLogin());
-        if (user == null
-                || !credentials.getPassword().equals(user.getPassword())) {
-            throw new MobileBankException(USER_NOT_FOUND.toString());
+        User user = getUserByPhone(credentials.getLogin());
+        if (user == null || !credentials.getPassword().equals(user.getPassword())) {
+            throw new MobileBankException(USER_NOT_FOUND);
         }
         if (getTokenByUserId(user.getId()) != null) {
             throw new MobileBankException(USER_IS_AUTHORIZED);
@@ -41,11 +40,11 @@ public class UserDao {
     }
 
     public User getUserByLogin(String login) throws SQLException, MobileBankException {
-        return JdbcService.getUserByLogin(login);
+        return UserRepository.getUserByLogin(login);
     }
 
     public User getUserByPhone(String phone) throws SQLException, MobileBankException {
-        return JdbcService.getUserByPhone(phone);
+        return UserRepository.getUserByPhone(phone);
     }
 
     public void signInUser(User user) throws SQLException, MobileBankException  {
@@ -63,9 +62,9 @@ public class UserDao {
     }
 
     public void logout(String token) throws SQLException, MobileBankException  {
-        if (JdbcService.getUserIdByToken(token) == null) {
+        if (getUserIdByToken(token) == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
-        JdbcService.deleteFromAuthorized(token);
+        deleteFromAuthorized(token);
     }
 }

@@ -1,13 +1,13 @@
 package service;
 
 import dao.AccountDao;
-import dto.AccountsResponseDto;
 import dto.CreateAccountDto;
-import dto.UserResponseDto;
+import dto.Response;
 import exception.MobileBankException;
 import model.Account;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class AccountService {
 
@@ -17,38 +17,30 @@ public class AccountService {
         this.accountDao = accountDao;
     }
 
-    public UserResponseDto createAccount(CreateAccountDto createAccountDto) {
-        UserResponseDto userResponseDto = new UserResponseDto();
+    public Response<String> createAccount(CreateAccountDto createAccountDto) {
         try {
             String token = createAccountDto.getToken();
             Account account = new Account(createAccountDto.getAmount(), createAccountDto.getAccCode());
             accountDao.createAccount(token, account);
-            return userResponseDto;
+            return new Response<>("Account is successfully created", "");
         } catch (MobileBankException | SQLException ex) {
-            userResponseDto.setError(ex.getMessage());
-            return userResponseDto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public AccountsResponseDto getUserAccountIds(String token) {
-        AccountsResponseDto dto = new AccountsResponseDto();
+    public Response<List<String>> getUserAccountIds(String token) {
         try {
-            dto.setAccountList(accountDao.getUserAccountIds(token));
-            return dto;
+            return new Response<>(accountDao.getUserAccountIds(token), "");
         } catch (MobileBankException | SQLException ex) {
-            dto.setError(ex.getMessage());
-            return dto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public AccountsResponseDto getUserAccountIdsByPhone(String phone) {
-        AccountsResponseDto dto = new AccountsResponseDto();
+    public Response<List<String>> getUserAccountIdsByPhone(String phone) {
         try {
-            dto.setAccountList(accountDao.getUserAccountIdsByPhone(phone));
-            return dto;
+            return new Response<>(accountDao.getUserAccountIdsByPhone(phone), "");
         } catch (MobileBankException | SQLException ex) {
-            dto.setError(ex.getMessage());
-            return dto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 }

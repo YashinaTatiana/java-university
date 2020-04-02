@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.UUID;
 
 import static exception.MobileBankErrorCode.INVALID_CURRENCY;
@@ -24,7 +23,7 @@ public class Account implements Serializable {
     private AccCode accCode;
 
     public Account(AccCode accCode) throws MobileBankException {
-        this(BigDecimal.valueOf(0), accCode);
+        this(BigDecimal.ZERO, accCode);
     }
 
     public Account(BigDecimal amount, String accCode) throws MobileBankException {
@@ -75,21 +74,5 @@ public class Account implements Serializable {
         } catch (IllegalArgumentException e) {
             throw new MobileBankException(INVALID_CURRENCY);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Account account = (Account) o;
-        return clientId == account.clientId &&
-                Objects.equals(id, account.id) &&
-                Objects.equals(amount, account.amount) &&
-                accCode == account.accCode;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, clientId, amount, accCode);
     }
 }

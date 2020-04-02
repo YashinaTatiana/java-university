@@ -1,20 +1,24 @@
 package dao;
 
-import db.JdbcService;
+import db.*;
 import dto.AccountOperationsDto;
 import exception.MobileBankException;
 import model.AccCode;
 import model.Account;
 import model.Operation;
-import utils.CurrencyConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static db.AccountRepository.*;
+import static db.OperationRepository.insertOperation;
+import static db.UserRepository.getUserIdByToken;
 import static exception.DbErrorCode.*;
 import static exception.MobileBankErrorCode.*;
+import static utils.CurrencyConverter.convert;
 
 public class OperationsDao {
 
@@ -23,22 +27,22 @@ public class OperationsDao {
         String userToken = accountDto.getToken();
         String accountId = accountDto.getAccountIdTo();
         BigDecimal addedAmount = accountDto.getAmount();
-        AccCode accCode = AccCode.valueOf(accountDto.getAccCode());
-        if (userToken == null || JdbcService.getUserIdByToken(userToken) == null) {
+        AccCode accCode = AccCode.valueOf(accountDto.getAccCode().toUpperCase());
+        if (userToken == null || getUserIdByToken(userToken) == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
         if (accountId == null || accountId.trim().isEmpty()) {
             throw new MobileBankException(ACCOUNT_IS_REQUIRED);
         }
-        Account account = JdbcService.getAccountById(accountId);
+        Account account = getAccountById(accountId);
         if (account == null) {
             throw new MobileBankException(ACCOUNT_NOT_FOUND);
         }
         if (addedAmount == null || addedAmount.longValue() < 0) {
             throw new MobileBankException(AMOUNT_NOT_VALID);
         }
-        JdbcService.updateAmountById(accountId,
-                account.getAmount().add(CurrencyConverter.convert(accCode, account.getAccCode(), addedAmount)));
+        BigDecimal amountAfter =  account.getAmount().add(convert(accCode, account.getAccCode(), addedAmount));
+        updateAmountById(accountId, amountAfter);
     }
 
     public void transaction(AccountOperationsDto accountDto)
@@ -49,7 +53,7 @@ public class OperationsDao {
         BigDecimal addedAmount = accountDto.getAmount();
         AccCode accCode = AccCode.valueOf(accountDto.getAccCode());
 
-        if (userToken == null || JdbcService.getUserIdByToken(userToken) == null) {
+        if (userToken == null || getUserIdByToken(userToken) == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
         if (accountIdFrom == null || accountIdFrom.trim().isEmpty()) {
@@ -61,8 +65,8 @@ public class OperationsDao {
         if (addedAmount == null || addedAmount.longValue() < 0) {
             throw new MobileBankException(AMOUNT_IS_INVALID);
         }
-        Account accountFrom = JdbcService.getAccountById(accountIdFrom);
-        Account accountTo = JdbcService.getAccountById(accountIdTo);
+        Account accountFrom = getAccountById(accountIdFrom);
+        Account accountTo = getAccountById(accountIdTo);
         if (accountFrom == null) {
             throw new MobileBankException(ACCOUNT_FROM_NOT_FOUND);
         }
@@ -71,31 +75,28 @@ public class OperationsDao {
         }
         BigDecimal amountTo = accountTo.getAmount();
         BigDecimal amountFrom = accountFrom.getAmount();
-        BigDecimal equivalentFrom = CurrencyConverter.convert(accCode, accountFrom.getAccCode(), addedAmount);
-        BigDecimal equivalentTo = CurrencyConverter.convert(accCode, accountTo.getAccCode(), addedAmount);
+        BigDecimal equivalentFrom = convert(accountFrom.getAccCode(), accCode, addedAmount);
+        BigDecimal equivalentTo = convert(accCode, accountTo.getAccCode(), addedAmount);
         if (accountFrom.getAmount().compareTo(equivalentFrom) < 0) {
             throw new MobileBankException(AMOUNT_NOT_ENOUGH);
         }
+        updateAmountById(accountIdTo, amountTo.add(equivalentTo));
+        updateAmountById(accountIdFrom,amountFrom.subtract(equivalentFrom));
 
-        JdbcService.updateAmountById(accountIdTo,
-                amountTo.add(equivalentTo));
-        JdbcService.updateAmountById(accountIdFrom,
-                amountFrom.subtract(equivalentFrom));
-
-        JdbcService.insertOperation(new Operation(Calendar.getInstance().getTime().toString(),
+        insertOperation(new Operation(Instant.now().toString(),
                 accCode.toString(), accountIdFrom, accountIdTo,
                 addedAmount, amountFrom, amountFrom.subtract(equivalentFrom)));
 
-        JdbcService.insertOperation(new Operation(Calendar.getInstance().getTime().toString(),
+        insertOperation(new Operation(Instant.now().toString(),
                 accCode.toString(), accountIdFrom, accountIdTo,
                 addedAmount, amountTo, amountTo.add(equivalentTo)));
     }
 
     public List<Operation> getOperations(String token) throws MobileBankException, SQLException {
-        Long userId = JdbcService.getUserIdByToken(token);
+        Long userId = getUserIdByToken(token);
         if (userId == null) {
             throw new MobileBankException(USER_IS_NOT_AUTHORIZED);
         }
-        return JdbcService.getOperations(userId);
+        return OperationRepository.getOperations(userId);
     }
 }

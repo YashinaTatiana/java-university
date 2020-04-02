@@ -1,7 +1,7 @@
 package service;
 
 import dao.UserDao;;
-import dto.UserResponseDto;
+import dto.Response;
 import exception.MobileBankException;
 import model.Credentials;
 import model.User;
@@ -16,8 +16,7 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public UserResponseDto signInUser(User user) {
-        UserResponseDto responseDto = new UserResponseDto();
+    public Response<String> signUp(User user) {
         try {
             if (null == user) {
                 throw new MobileBankException("User is not defined!");
@@ -28,49 +27,42 @@ public class UserService {
                 throw new MobileBankException("User with such phone is exists!");
             }
             userDao.signInUser(user);
-            return responseDto;
+            return new Response<>("User signed up", "");
         } catch (MobileBankException | SQLException ex) {
-            responseDto.setError(ex.getMessage());
-            return responseDto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public UserResponseDto loginUserByLogin(Credentials credentials) {
-        UserResponseDto responseDto = new UserResponseDto();
+    public Response<String> loginUserByLogin(Credentials credentials) {
         try {
             if (null == credentials) {
                 throw new MobileBankException("Credentials is not provided!");
             }
-            responseDto.setResponse(userDao.loginUserByLogin(credentials));
-            return responseDto;
+            String token = userDao.loginUserByLogin(credentials);
+            return new Response<>(token, "");
         } catch (MobileBankException | SQLException ex) {
-            responseDto.setError(ex.getMessage());
-            return responseDto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public UserResponseDto loginUserByPhone(Credentials credentials) {
-        UserResponseDto responseDto = new UserResponseDto();
+    public Response<String> loginUserByPhone(Credentials credentials) {
         try {
             if (null == credentials) {
                 throw new MobileBankException("Credentials is not provided!");
             }
-            responseDto.setResponse(userDao.loginUserByPhone(credentials));
-            return responseDto;
+            String token = userDao.loginUserByPhone(credentials);
+            return new Response<>(token, "");
         } catch (MobileBankException | SQLException ex) {
-            responseDto.setError(ex.getMessage());
-            return responseDto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 
-    public UserResponseDto logoutUser(String token) {
-        UserResponseDto dto = new UserResponseDto();
+    public Response<String> logoutUser(String token) {
         try {
             userDao.logout(token);
-            return dto;
+            return new Response<>("Logout...", "");
         } catch (MobileBankException | SQLException ex) {
-            dto.setError(ex.getMessage());
-            return dto;
+            return new Response<>(null, ex.getMessage());
         }
     }
 }

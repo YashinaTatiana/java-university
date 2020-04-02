@@ -30,7 +30,7 @@ CREATE TABLE accounts (
 
 CREATE TABLE operations (
     id INT(11) NOT NULL AUTO_INCREMENT,
-	operation_date DATE NOT NULL,
+	trans_date VARCHAR(75) NOT NULL,
 	acc_code VARCHAR(10) NOT NULL,
 	account_from VARCHAR(100) NOT NULL,
 	account_to VARCHAR(100) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE operations (
 	amount_before DECIMAL NOT NULL,
 	amount_after DECIMAL NOT NULL,
 	PRIMARY KEY (id),
-	KEY (operation_date),
+	KEY (trans_date),
 	KEY (acc_code),
 	KEY (account_from),
 	KEY (account_to),
@@ -56,4 +56,4 @@ CREATE TABLE authorized (
 
 
 ALTER TABLE accounts ADD FOREIGN KEY (client_id) REFERENCES users (id) ON DELETE CASCADE;
-ALTER TABLE authorized_users ADD FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
+ALTER TABLE authorized ADD FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;

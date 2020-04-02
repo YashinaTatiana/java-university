@@ -7,10 +7,13 @@ import java.math.BigDecimal;
 
 import static exception.MobileBankErrorCode.INVALID_CURRENCY;
 import static model.AccCode.*;
-import static utils.Constants.*;
-import static utils.Constants.USD2EUR;
 
 public class CurrencyConverter {
+
+    // Currency
+    public static final double USD2RUB = 67;
+    public static final double EUR2RUB = 73;
+    public static final double USD2EUR = 0.89;
 
     public static BigDecimal convert(AccCode accCodeFrom, AccCode accCodeTo, BigDecimal amount)
             throws MobileBankException {
