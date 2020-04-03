@@ -19,24 +19,14 @@ import javax.validation.Valid;
 @RequestMapping("/v1/user")
 public interface UserController {
 
-    @PostMapping("/signin/login")
-    @ApiOperation(value = "Log in user by login")
+    @PostMapping("/signin")
+    @ApiOperation(value = "Log in user")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Successfully logged in"),
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 400, message = "Invalid request")
     })
-    public ResponseEntity<String> loginInByName(@RequestBody @Valid Credentials authenticationRequest);
-
-    @PostMapping("/signin/phone")
-    @ApiOperation(value = "Log in user by phone")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Successfully logged in"),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 400, message = "Invalid request")
-    })
-    public ResponseEntity<String> loginInByPhone(@RequestBody @Valid Credentials authenticationRequest);
-
+    public ResponseEntity<String> loginIn(@RequestBody @Valid Credentials authenticationRequest);
 
     @PostMapping("/signup")
     @ApiOperation(value = "Sign up user")

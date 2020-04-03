@@ -22,12 +22,8 @@ public class UserService {
     @Autowired
     private AuthenticationService authenticationService;
 
-    public String loginInByName(Credentials authenticationRequest) throws ValidationException {
+    public String loginIn(Credentials authenticationRequest) throws ValidationException {
        return authenticationService.authenticate(authenticationRequest);
-    }
-
-    public String loginInByPhone(Credentials authenticationRequest) throws ValidationException {
-        return authenticationService.authenticate(authenticationRequest);
     }
 
     public void createUser(UserDto userDto) throws ValidationException {

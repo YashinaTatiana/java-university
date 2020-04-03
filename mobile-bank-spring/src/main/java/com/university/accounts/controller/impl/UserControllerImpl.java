@@ -20,13 +20,8 @@ public class UserControllerImpl implements UserController {
     private UserService userService;
 
     @Override
-    public ResponseEntity<String> loginInByName(Credentials authenticationRequest) {
-        return ResponseEntity.ok(userService.loginInByName(authenticationRequest));
-    }
-
-    @Override
-    public ResponseEntity<String> loginInByPhone(Credentials authenticationRequest) {
-        return ResponseEntity.ok(userService.loginInByPhone(authenticationRequest));
+    public ResponseEntity<String> loginIn(Credentials authenticationRequest) {
+        return ResponseEntity.ok(userService.loginIn(authenticationRequest));
     }
 
     @Override

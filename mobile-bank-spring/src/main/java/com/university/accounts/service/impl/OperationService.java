@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.university.accounts.entity.OperationType.*;
 import static com.university.accounts.utils.CurrencyConverterUtils.convert;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -46,7 +47,7 @@ public class OperationService {
             throw new NotAuthorizedException(ErrorMessage.USER_NOT_AUTHORIZED.getMessage());
         }
         return operationRepository.getUserOperations(user.getAccountList().stream()
-                .map(Account::getId).collect(Collectors.toList()));
+                .map(Account::getId).collect(toList()));
     }
 
     @Transactional
@@ -76,8 +77,21 @@ public class OperationService {
 
         AccCode recipientAccCode = recipientAccount.getCurrency();
         AccCode senderAccCode = senderAccount.getCurrency();
-        BigDecimal amountBefore = recipientAccount.getAmount();
-        BigDecimal amountAfter = amountBefore.add(convert(transAccCode, recipientAccCode, transAmount));
+
+        BigDecimal amountBefore = senderAccount.getAmount();
+        BigDecimal amountAfter = amountBefore.subtract(convert(transAccCode, senderAccCode, transAmount));
+
+        if (amountAfter.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequest("Not enough money");
+        }
+
+        accountRepository.setAccountAmount(senderAccount.getId(), amountAfter);
+        Operation operationReceipts = new Operation(date, transAccCode, senderAccount.getId(),
+                recipientAccount.getId(), transAmount, amountBefore, amountAfter, RECEIPTS);
+        operationRepository.save(operationReceipts);
+
+        amountBefore = recipientAccount.getAmount();
+        amountAfter = amountBefore.add(convert(transAccCode, recipientAccCode, transAmount));
 
         accountRepository.setAccountAmount(recipientAccount.getId(), amountAfter);
 
@@ -85,13 +99,6 @@ public class OperationService {
                 transAccCode, senderAccount.getId(), recipientAccount.getId(),
                 transAmount, amountBefore, amountAfter, TRANSFER);
         operationRepository.save(operationTransfer);
-
-        amountBefore = senderAccount.getAmount();
-        amountAfter = amountBefore.subtract(convert(transAccCode, senderAccCode, transAmount));
-        accountRepository.setAccountAmount(senderAccount.getId(), amountAfter);
-        Operation operationReceipts = new Operation(date, transAccCode, senderAccount.getId(),
-                recipientAccount.getId(), transAmount, amountBefore, amountAfter, RECEIPTS);
-        operationRepository.save(operationReceipts);
     }
 
     private Account getCurrentUserAccount(Long accountId) {
