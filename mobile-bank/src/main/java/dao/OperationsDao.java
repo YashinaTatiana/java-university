@@ -75,7 +75,7 @@ public class OperationsDao {
         }
         BigDecimal amountTo = accountTo.getAmount();
         BigDecimal amountFrom = accountFrom.getAmount();
-        BigDecimal equivalentFrom = convert(accountFrom.getAccCode(), accCode, addedAmount);
+        BigDecimal equivalentFrom = convert(accCode, accountFrom.getAccCode(), addedAmount);
         BigDecimal equivalentTo = convert(accCode, accountTo.getAccCode(), addedAmount);
         if (accountFrom.getAmount().compareTo(equivalentFrom) < 0) {
             throw new MobileBankException(AMOUNT_NOT_ENOUGH);
